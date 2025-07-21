@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade - CryptoTrader Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        .trade-form {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-buy {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            padding: 10px 30px;
+        }
+        .btn-sell {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            padding: 10px 30px;
+        }
+        .price-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-coins me-2"></i>CryptoTrader Pro
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link active" href="/trade">
+                    <i class="fas fa-exchange-alt me-1"></i>Trade
+                </a>
+                <a class="nav-link" href="/transactions">
+                    <i class="fas fa-history me-1"></i>History
+                </a>
+                <a class="nav-link" href="/feedback">
+                    <i class="fas fa-comment-dots me-1"></i>Feedback
+                </a>
+                <a class="nav-link" href="/search">
+                    <i class="fas fa-search me-1"></i>Search
+                </a>
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2><i class="fas fa-exchange-alt me-2"></i>Trade Cryptocurrency</h2>
+                <p class="text-muted">Buy and sell cryptocurrencies instantly</p>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <div class="col-md-8 mb-4">
+                <div class="card trade-form">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">
+                            <i class="fas fa-chart-line me-2"></i>Place Order
+                        </h4>
+                        
+                        <form method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="crypto_symbol" class="form-label">Cryptocurrency</label>
+                                    <select class="form-select" id="crypto_symbol" name="crypto_symbol" required>
+                                        <option value="">Select cryptocurrency</option>
+                                        {% for crypto in crypto_prices %}
+                                            <option value="{{ crypto[0] }}">
+                                                {% if crypto[0] == 'BTC' %}
+                                                    Bitcoin (BTC) - ${{ "{:,.2f}".format(crypto[1]) }}
+                                                {% elif crypto[0] == 'ETH' %}
+                                                    Ethereum (ETH) - ${{ "{:,.2f}".format(crypto[1]) }}
+                                                {% elif crypto[0] == 'ADA' %}
+                                                    Cardano (ADA) - ${{ "{:,.2f}".format(crypto[1]) }}
+                                                {% elif crypto[0] == 'DOT' %}
+                                                    Polkadot (DOT) - ${{ "{:,.2f}".format(crypto[1]) }}
+                                                {% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="amount" class="form-label">Amount</label>
+                                    <input type="number" class="form-control" id="amount" name="amount" 
+                                           step="0.01" min="0.01" placeholder="Enter amount" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Order Type</label>
+                                    <div class="d-flex gap-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="trade_type" 
+                                                   id="buy" value="buy" checked>
+                                            <label class="form-check-label" for="buy">
+                                                <i class="fas fa-arrow-up me-1"></i>Buy
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="trade_type" 
+                                                   id="sell" value="sell">
+                                            <label class="form-check-label" for="sell">
+                                                <i class="fas fa-arrow-down me-1"></i>Sell
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Estimated Total</label>
+                                    <div class="form-control-plaintext text-white" id="estimated_total">
+                                        $0.00
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-buy me-md-2">
+                                    <i class="fas fa-arrow-up me-1"></i>Buy Order
+                                </button>
+                                <button type="submit" class="btn btn-sell">
+                                    <i class="fas fa-arrow-down me-1"></i>Sell Order
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card price-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-bar me-2"></i>Live Prices
+                        </h5>
+                        <div class="list-group list-group-flush bg-transparent">
+                            {% for crypto in crypto_prices %}
+                                <div class="list-group-item bg-transparent text-white border-0 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if crypto[0] == 'BTC' %}
+                                            <i class="fab fa-bitcoin me-2"></i>BTC
+                                        {% elif crypto[0] == 'ETH' %}
+                                            <i class="fab fa-ethereum me-2"></i>ETH
+                                        {% elif crypto[0] == 'ADA' %}
+                                            <i class="fas fa-coins me-2"></i>ADA
+                                        {% elif crypto[0] == 'DOT' %}
+                                            <i class="fas fa-circle me-2"></i>DOT
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold">${{ "{:,.2f}".format(crypto[1]) }}</div>
+                                        <small>
+                                            {% if crypto[0] == 'BTC' %}
+                                                <span class="text-success">+2.5%</span>
+                                            {% elif crypto[0] == 'ETH' %}
+                                                <span class="text-danger">-1.2%</span>
+                                            {% elif crypto[0] == 'ADA' %}
+                                                <span class="text-success">+5.8%</span>
+                                            {% elif crypto[0] == 'DOT' %}
+                                                <span class="text-success">+3.1%</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-info-circle me-2"></i>Trading Tips
+                        </h6>
+                        <ul class="list-unstyled small">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Start with small amounts
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Monitor market trends
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Set stop-loss orders
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Diversify your portfolio
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple JavaScript to update estimated total
+        document.getElementById('crypto_symbol').addEventListener('change', updateTotal);
+        document.getElementById('amount').addEventListener('input', updateTotal);
+        
+        function updateTotal() {
+            const symbol = document.getElementById('crypto_symbol').value;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            
+            const prices = {
+                'BTC': 45000,
+                'ETH': 3200,
+                'ADA': 1.2,
+                'DOT': 25
+            };
+            
+            if (symbol && prices[symbol]) {
+                const total = amount * prices[symbol];
+                document.getElementById('estimated_total').textContent = `$${total.toFixed(2)}`;
+            } else {
+                document.getElementById('estimated_total').textContent = '$0.00';
+            }
+        }
+    </script>
+</body>
+</html> 

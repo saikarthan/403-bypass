@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - User Management - CryptoTrader Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .user-card {
+            transition: transform 0.3s ease;
+        }
+        .user-card:hover {
+            transform: translateY(-5px);
+        }
+        .badge-admin {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+        }
+        .badge-user {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-coins me-2"></i>CryptoTrader Pro
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="/trade">
+                    <i class="fas fa-exchange-alt me-1"></i>Trade
+                </a>
+                <a class="nav-link" href="/transactions">
+                    <i class="fas fa-history me-1"></i>History
+                </a>
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="admin-header rounded p-4">
+                    <h2><i class="fas fa-users-cog me-2"></i>User Management</h2>
+                    <p class="mb-0">Administrative control panel for user management</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                        <h4>{{ users|length }}</h4>
+                        <p class="text-muted mb-0">Total Users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-user-shield fa-2x text-danger mb-2"></i>
+                        <h4>{{ users|selectattr('4', 'equalto', 1)|list|length }}</h4>
+                        <p class="text-muted mb-0">Administrators</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-user fa-2x text-success mb-2"></i>
+                        <h4>{{ users|selectattr('4', 'equalto', 0)|list|length }}</h4>
+                        <p class="text-muted mb-0">Regular Users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
+                        <h4>${{ "%.2f"|format(users|sum(attribute='3')) }}</h4>
+                        <p class="text-muted mb-0">Total Balance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>All Users
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Balance</th>
+                                        <th>Role</th>
+                                        <th>API Key</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>
+                                            <strong>#{{ user[0] }}</strong>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-circle fa-lg text-primary me-2"></i>
+                                                <strong>{{ user[1] }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-envelope text-muted me-1"></i>
+                                            {{ user[2] }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                ${{ "%.2f"|format(user[3]) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if user[4] == 1 %}
+                                                <span class="badge badge-admin">
+                                                    <i class="fas fa-shield-alt me-1"></i>Admin
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-user">
+                                                    <i class="fas fa-user me-1"></i>User
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <code class="small">{{ user[5][:8] }}...</code>
+                                        </td>
+                                        <td>
+                                            <a href="/admin/users/{{ user[0] }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Security Notice
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-shield-alt me-2"></i>403 Forbidden Bypass Vulnerabilities</h6>
+                            <p class="mb-2">This page demonstrates several 403-forbidden bypass techniques:</p>
+                            <ul class="mb-0">
+                                <li><strong>SQL Injection:</strong> The admin check uses vulnerable SQL queries</li>
+                                <li><strong>Session Manipulation:</strong> Admin privileges can be bypassed by manipulating session data</li>
+                                <li><strong>Header Bypass:</strong> Some API endpoints can be accessed with specific headers</li>
+                                <li><strong>User Agent Bypass:</strong> Certain endpoints check user agent strings</li>
+                                <li><strong>IP Address Bypass:</strong> Some endpoints only check client IP addresses</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

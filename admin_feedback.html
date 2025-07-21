@@ -1,0 +1,26 @@
+{% extends 'admin_system.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>User Feedback</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Message</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fb in feedbacks %}
+            <tr>
+                <td>{{ fb[0] }}</td>
+                <td>{{ fb[1] }}</td>
+                <td>{{ fb[2] }}</td>
+                <td>{{ fb[3] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

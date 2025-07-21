@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History - CryptoTrader Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        .transaction-buy {
+            border-left: 4px solid #28a745;
+        }
+        .transaction-sell {
+            border-left: 4px solid #dc3545;
+        }
+        .badge-buy {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .badge-sell {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-coins me-2"></i>CryptoTrader Pro
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="/trade">
+                    <i class="fas fa-exchange-alt me-1"></i>Trade
+                </a>
+                <a class="nav-link active" href="/transactions">
+                    <i class="fas fa-history me-1"></i>History
+                </a>
+                <a class="nav-link" href="/feedback">
+                    <i class="fas fa-comment-dots me-1"></i>Feedback
+                </a>
+                <a class="nav-link" href="/search">
+                    <i class="fas fa-search me-1"></i>Search
+                </a>
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2><i class="fas fa-history me-2"></i>Transaction History</h2>
+                <p class="text-muted">View all your trading activities</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list me-2"></i>All Transactions
+                                </h5>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-primary btn-sm">All</button>
+                                    <button type="button" class="btn btn-outline-success btn-sm">Buy</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm">Sell</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if transactions %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date & Time</th>
+                                            <th>Type</th>
+                                            <th>Cryptocurrency</th>
+                                            <th>Amount</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for transaction in transactions %}
+                                        <tr class="transaction-{{ transaction[2] }}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-clock text-muted me-2"></i>
+                                                    {{ transaction[6] }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if transaction[2] == 'buy' %}
+                                                    <span class="badge badge-buy">
+                                                        <i class="fas fa-arrow-up me-1"></i>Buy
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge badge-sell">
+                                                        <i class="fas fa-arrow-down me-1"></i>Sell
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if transaction[3] == 'BTC' %}
+                                                        <i class="fab fa-bitcoin text-warning me-2"></i>
+                                                    {% elif transaction[3] == 'ETH' %}
+                                                        <i class="fab fa-ethereum text-info me-2"></i>
+                                                    {% elif transaction[3] == 'ADA' %}
+                                                        <i class="fas fa-coins text-success me-2"></i>
+                                                    {% elif transaction[3] == 'DOT' %}
+                                                        <i class="fas fa-circle text-primary me-2"></i>
+                                                    {% endif %}
+                                                    <strong>{{ transaction[3] }}</strong>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong>{{ transaction[4] }}</strong>
+                                            </td>
+                                            <td>
+                                                ${{ "{:,.2f}".format(transaction[5]) }}
+                                            </td>
+                                            <td>
+                                                <strong>${{ "{:,.2f}".format(transaction[4] * transaction[5]) }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Completed
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No transactions yet</h5>
+                                <p class="text-muted">Start trading to see your transaction history</p>
+                                <a href="/trade" class="btn btn-primary">
+                                    <i class="fas fa-exchange-alt me-2"></i>Start Trading
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo transactions for better UX -->
+        {% if not transactions %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Sample Transactions (Demo)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Type</th>
+                                        <th>Cryptocurrency</th>
+                                        <th>Amount</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="transaction-buy">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-clock text-muted me-2"></i>
+                                                2024-01-15 14:30:25
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-buy">
+                                                <i class="fas fa-arrow-up me-1"></i>Buy
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fab fa-bitcoin text-warning me-2"></i>
+                                                <strong>BTC</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>0.5</strong>
+                                        </td>
+                                        <td>
+                                            $45,000.00
+                                        </td>
+                                        <td>
+                                            <strong>$22,500.00</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Completed
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr class="transaction-sell">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-clock text-muted me-2"></i>
+                                                2024-01-14 09:15:42
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-sell">
+                                                <i class="fas fa-arrow-down me-1"></i>Sell
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fab fa-ethereum text-info me-2"></i>
+                                                <strong>ETH</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>2.0</strong>
+                                        </td>
+                                        <td>
+                                            $3,200.00
+                                        </td>
+                                        <td>
+                                            <strong>$6,400.00</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Completed
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr class="transaction-buy">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-clock text-muted me-2"></i>
+                                                2024-01-13 16:45:18
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-buy">
+                                                <i class="fas fa-arrow-up me-1"></i>Buy
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-coins text-success me-2"></i>
+                                                <strong>ADA</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>1000</strong>
+                                        </td>
+                                        <td>
+                                            $1.20
+                                        </td>
+                                        <td>
+                                            <strong>$1,200.00</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Completed
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
